@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marblebot Simulator</title>
+    <link rel="stylesheet" href="style.css">
+
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.169.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.169.0/examples/jsm/"
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.11.1/lib/p5.min.js"></script>
+</head>
+<body>
+    <div id="simulation-container">
+        <canvas id="p5Canvas"></canvas>
+        <canvas id="canvas"></canvas>
+    </div>
+    <div id="parameters">
+        <button id="regen-button">Regenerate</button>
+        <div class="container">
+            <div class="control-panel">
+                <h3>Sensor Error Controls</h3>
+                <div class="error-controls">
+                    <div class="slider-container">
+                        <label for="uwb-angular">UWB Angular Error:</label>
+                        <input type="range" id="uwb-angular" min="0.017" max="0.51" step="0.017" value="0.017">
+                        <span id="uwb-angular-value"></span>
+                    </div>
+                    <div class="slider-container">
+                        <label for="uwb-radial">UWB Radial Error:</label>
+                        <input type="range" id="uwb-radial" min="0.01" max="0.3" step="0.01" value="0.01">
+                        <span id="uwb-radial-value"></span>
+                    </div>
+                    <div class="slider-container">
+                        <label for="ir-angular">IR Angular Error:</label>
+                        <input type="range" id="ir-angular" min="0.017" max="0.57" step="0.017" value="0.017">
+                        <span id="ir-angular-value"></span>
+                    </div>
+                    <div class="slider-container">
+                        <label for="ir-radial">IR Radial Error:</label>
+                        <input type="range" id="ir-radial" min="0.01" max="0.3" step="0.01" value="0.01">
+                        <span id="ir-radial-value"></span>
+                    </div>
+                </div>
+
+                <h3>Formation Controls</h3>
+                <div class="formation-controls">
+                    <div class="slider-container">
+                        <label for="formation-select">Formation Type:</label>
+                        <select id="formation-select">
+                            <option value="circle">Circle Formation</option>
+                            <option value="polygon">Polygon Formation</option>
+                        </select>
+                    </div>
+                    <div class="slider-container">
+                        <label for="min-radius">Min Radius Threshold:</label>
+                        <input type="range" id="min-radius" min="0.01" max="0.3" step="0.01" value="0.05">
+                        <span id="min-radius-value">0.05</span>
+                    </div>
+                    <div class="slider-container" id="polygon-sides-container" style="display: none;">
+                        <label for="polygon-sides">Number of Sides:</label>
+                        <input type="range" id="polygon-sides" min="3" max="8" step="1" value="4">
+                        <span id="polygon-sides-value">4</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="draw.js"></script>
+    <script src="script.js" type="module"></script>
+</body>
+</html>
