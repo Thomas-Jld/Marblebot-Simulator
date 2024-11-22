@@ -160,7 +160,7 @@ export const irMoveAwayFromAnchor = new Rule(
     '0',
     'this.i !=  othersId[1] && this.i != othersId[othersId.length - 1]',
     {start: -2 * Math.PI, end: 2 * Math.PI},
-    {start: IR_MIN_SENSING_RADIUS, end: IR_MAX_SENSING_RADIUS},
+    {start: IR_MIN_SENSING_RADIUS, end: Math.min(IR_MAX_SENSING_RADIUS, UWB_MIN_SENSING_RADIUS)},
     true
 )
 
@@ -205,7 +205,8 @@ export const irShapeCircle = new Rule(
     'irShapeCircle',
     'ir',
     '0',
-    'this.i ==  othersId[1] || this.i == othersId[othersId.length - 1]',
+    'true',
+    // 'this.i ==  othersId[1] || this.i == othersId[othersId.length - 1]',
     {start: -2 * Math.PI, end: 2 * Math.PI},
     {start: IR_MIN_SENSING_RADIUS, end: IR_MAX_SENSING_RADIUS },
     true
@@ -310,6 +311,40 @@ uwbShapePolygon.apply = ({ id_offset, theta, uwb_distance, uwb_angle, uwb_ref_th
     return { delta_position: r*0.9, delta_angle: phi,  applies: r > minRadiusThreshold };
 }
 
+
+
+export const irShapePolygon = new Rule(
+    'irShapePolygon',
+    'ir',
+    '0',
+    'true',
+    {start: -2 * Math.PI, end: 2 * Math.PI},
+    {start: IR_MIN_SENSING_RADIUS, end: IR_MAX_SENSING_RADIUS},
+    true
+)
+
+irShapePolygon.apply = ({ id_offset, theta, ir_distance, ir_angle, ir_ref_theta, ir_other_theta, other_is_moving, swarm_length }) => {
+    const a = 2 * Math.PI / polygonSides;  // Angle between vertices
+
+    const r1 = ir_distance;
+    const phi1 = signedAngleDiff(ir_angle + ir_ref_theta, theta);
+
+    const r2 = 0.2;  // Step size for positioning
+    const phi2 = Math.PI / 2 + ir_other_theta - ir_ref_theta;
+
+    let { r, phi } = addPolarVectors(r1, phi1, r2, phi2);
+
+    // Position robots along the polygon vertices
+    for (let i = 1; i < Math.min(id_offset, swarm_length - 1 - swarm_length % polygonSides); i++) {
+        ({ r, phi } = addPolarVectors(r, phi, r2, Math.PI / 2 - (a) * Math.round(i / Math.floor(swarm_length / polygonSides)) + ir_other_theta - ir_ref_theta));
+    }
+
+    phi = mod(phi + Math.PI, 2 * Math.PI) - Math.PI;
+
+    return { delta_position: r*0.9, delta_angle: phi,  applies: r > minRadiusThreshold };
+}
+
+
 /**
  * Rule for making robots face the center of the circle using IR.
  * Used for maintaining orientation in close-range formations.
@@ -380,13 +415,13 @@ export const setMinRadiusThreshold = (threshold) => {
 export const getActiveRules = () => {
     const baseRules = [
         // faceNorth,
-        irMoveAwayFromAnchor,
+        // irMoveAwayFromAnchor,
     ];
 
     if (formationType === 'circle') {
         return [...baseRules, irShapeCircle, uwbShapeCircle, uwbFaceCircleCenter];
     } else {
-        return [...baseRules, uwbShapePolygon, uwbFaceCircleCenter];
+        return [...baseRules, irShapePolygon, uwbShapePolygon, uwbFaceCircleCenter];
     }
 };
 

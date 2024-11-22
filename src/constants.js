@@ -10,7 +10,7 @@ export const ROBOT_RADIUS = 0.03 / 2;
  * UWB (Ultra-Wideband) Sensor Configuration
  * Used for long-range detection and formation control
  */
-export const UWB_MIN_SENSING_RADIUS = 0.03;    // Minimum detection range (m)
+export const UWB_MIN_SENSING_RADIUS = 0.3;    // Minimum detection range (m)
 export const UWB_MAX_SENSING_RADIUS = 20.0;   // Maximum detection range (m)
 export const UWB_PRECISION = 0.1;             // Base precision value
 
@@ -18,10 +18,10 @@ export const UWB_PRECISION = 0.1;             // Base precision value
  * Dynamic sensor error values that can be updated via UI sliders
  * These represent the maximum error range for sensor measurements
  */
-let _uwbAngularPrecision = Math.PI / 180;  // Default angular error for UWB (rad)
-let _uwbRadialPrecision = 0.01;          // Default radial error for UWB (m)
-let _irAngularPrecision = Math.PI / 180;    // Default angular error for IR (rad)
-let _irRadialPrecision = 0.01;              // Default radial error for IR (m)
+let _uwbAngularPrecision = 10 * Math.PI / 180;  // Default angular error for UWB (rad)
+let _uwbRadialPrecision = 0.1;          // Default radial error for UWB (m)
+let _irAngularPrecision = 3 * Math.PI / 180;    // Default angular error for IR (rad)
+let _irRadialPrecision = 0.03;              // Default radial error for IR (m)
 
 export const getUWBAngularPrecision = () => _uwbAngularPrecision;
 export const getUWBRadialPrecision = () => _uwbRadialPrecision;
@@ -39,6 +39,29 @@ export const setIRRadialPrecision = (value) => { _irRadialPrecision = value; };
 export const IR_MIN_SENSING_RADIUS = 0.01;    // Minimum detection range (m)
 export const IR_MAX_SENSING_RADIUS = 0.32;    // Maximum detection range (m)
 export const IR_PRECISION = 0.0001;           // Base precision value
+
+/**
+ * Noise Configuration
+ * Controls the scale of Perlin noise used for error simulation
+ */
+let _noiseScale = 0.004;  // Default noise scale
+let _noiseSpeed = 0.01;  // Default noise animation speed
+
+export function getNoiseScale() {
+    return _noiseScale;
+}
+
+export function setNoiseScale(value) {
+    _noiseScale = value;
+}
+
+export function getNoiseSpeed() {
+    return _noiseSpeed;
+}
+
+export function setNoiseSpeed(value) {
+    _noiseSpeed = value;
+}
 
 /** Movement constraints */
 export const MAX_SPEED_M_S = 0.3;           // Maximum linear speed (m/s)

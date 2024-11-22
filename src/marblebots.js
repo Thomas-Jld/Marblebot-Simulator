@@ -4,7 +4,8 @@ import { ROBOT_RADIUS, UWB_MIN_SENSING_RADIUS, UWB_MAX_SENSING_RADIUS, UWB_PRECI
         IR_MIN_SENSING_RADIUS, IR_MAX_SENSING_RADIUS, IR_PRECISION, MAX_SPEED_M_S,
         MIN_SPEED_M_S, MAX_ROT_SPEED_RAD_S, ZOOM, COL_MIN, COL_MAX, ARENA_SIZE,
         getUWBAngularPrecision, getUWBRadialPrecision,
-        getIRAngularPrecision, getIRRadialPrecision } from './constants.js';
+        getIRAngularPrecision, getIRRadialPrecision, getNoiseSpeed } from './constants.js';
+import { getIRRadialError, getIRAngularError, getUWBRadialError, getUWBAngularError } from './noise.js';
 
 class MarbleBot {
     constructor(i, color, x, y, theta) {
@@ -65,6 +66,9 @@ class MarbleBot {
 
         this.is_moving = false;
         this.selectedAsAnchor = false;
+
+        this.newUwbMeasurement = false;
+        this.newIrMeasurement = false;
     }
 
     createHelpers(swarmCount) {
@@ -133,12 +137,19 @@ class MarbleBot {
         swarm.forEach((marbleBot, i) => {
             if (marbleBot.name === this.name) return;
 
-            let e_r_ir = ( 2 * Math.random() - 1 ) * getIRRadialPrecision();
-            let e_theta_ir = ( 2 * Math.random() - 1 ) * getIRAngularPrecision();
+            // Get noise-based errors using robot's position for spatial consistency
+            const time = frameCount * getNoiseSpeed();
+            const noiseX = height * this.x / (2 * ZOOM) + width / 2;
+            const noiseY = height * this.y / (2 * ZOOM) + height / 2;
+            const e_r_ir = getIRRadialError(noiseX, noiseY, time);
+            const e_theta_ir = getIRAngularError(noiseX, noiseY, time);
 
-            let ir_distance = Math.sqrt((this.x - marbleBot.x) ** 2 + (this.y - marbleBot.y) ** 2) + e_r_ir;
-            let ir_angle = signedAngleDiff(Math.atan2(marbleBot.y - this.y, marbleBot.x - this.x) + e_theta_ir, this.theta);
+            // Scale the errors by the precision values
+            const radialError = 2 * e_r_ir * getIRRadialPrecision();
+            const angularError = e_theta_ir * getIRAngularPrecision();
 
+            let ir_distance = Math.sqrt((this.x - marbleBot.x) ** 2 + (this.y - marbleBot.y) ** 2) + radialError;
+            let ir_angle = signedAngleDiff(Math.atan2(marbleBot.y - this.y, marbleBot.x - this.x) + angularError, this.theta);
 
             if (ir_distance < IR_MAX_SENSING_RADIUS && ir_distance > IR_MIN_SENSING_RADIUS) {
                 if(!(marbleBot.i in this.swarmMap)) this.swarmMap[marbleBot.i] = {};
@@ -165,7 +176,6 @@ class MarbleBot {
                     this.swarmMap[marbleBot.i]["ir_distance"] = 2 * IR_MAX_SENSING_RADIUS;
                 }
 
-
                 if (this.useHelper) {
                     let line = this.mesh.children[1 + this.swarmCount + i];
                     let points = line.geometry.attributes.position.array;
@@ -175,17 +185,30 @@ class MarbleBot {
                 }
             }
         });
+
+        this.newIrMeasurement = true;
     }
 
     senseSwarmUWB(swarm) {
         swarm.forEach((marbleBot, i) => {
             if (marbleBot.name === this.name) return;
 
-            let e_r_uwb = ( 2 * Math.random() - 1 ) * getUWBRadialPrecision();
-            let e_theta_uwb = ( 2 * Math.random() - 1 ) * getUWBAngularPrecision();
+            // Get noise-based errors using robot's position for spatial consistency
+            const time = frameCount * getNoiseSpeed();
+            const noiseX = width / 2 + height * this.x / (2 * ZOOM);
+            const noiseY = height / 2 - height * this.y / (2 * ZOOM);
+            // if(this.i == 0 && marbleBot.i == 6)console.log(noiseX, noiseY);
+            const e_r_uwb = getUWBRadialError(noiseX, noiseY, time);
+            const e_theta_uwb = getUWBAngularError(noiseX, noiseY, time);
 
-            let uwb_distance = Math.sqrt((this.x - marbleBot.x) ** 2 + (this.y - marbleBot.y) ** 2) + e_r_uwb;
-            let uwb_angle = signedAngleDiff(Math.atan2(marbleBot.y - this.y, marbleBot.x - this.x) + e_theta_uwb, this.theta);
+            // Scale the errors by the precision values
+            const radialError = 2 * e_r_uwb * getUWBRadialPrecision();
+            this.radialError = radialError;
+            const angularError = e_theta_uwb * getUWBAngularPrecision();
+            // if(this.i == 0 && marbleBot.i == 6)console.log(radialError);
+
+            let uwb_distance = Math.sqrt((this.x - marbleBot.x) ** 2 + (this.y - marbleBot.y) ** 2) + radialError;
+            let uwb_angle = signedAngleDiff(Math.atan2(marbleBot.y - this.y, marbleBot.x - this.x) + angularError, this.theta);
 
             if (uwb_distance < UWB_MAX_SENSING_RADIUS && uwb_distance > UWB_MIN_SENSING_RADIUS) {
                 if(!(marbleBot.i in this.swarmMap)) this.swarmMap[marbleBot.i] = {};
@@ -203,9 +226,7 @@ class MarbleBot {
                     points[4] = uwb_distance * Math.sin(uwb_angle);
                     line.geometry.attributes.position.needsUpdate = true;
                 }
-            }
-
-            else {
+            } else {
                 if (marbleBot.i in this.swarmMap) {
                     this.swarmMap[marbleBot.i]["uwb_distance"] = 2 * UWB_MAX_SENSING_RADIUS;
                 }
@@ -218,7 +239,10 @@ class MarbleBot {
                     line.geometry.attributes.position.needsUpdate = true;
                 }
             }
+
         });
+
+        this.newUwbMeasurement = true;
     }
 
 
@@ -228,6 +252,14 @@ class MarbleBot {
             let candidateI = this.i;
             while (candidateI > 0) {
                 candidateI--;
+                if (othersId.includes(candidateI.toString())) return candidateI;
+            }
+            return -1;
+        }
+        if (rule.applies_to == "i+1") {
+            let candidateI = this.i;
+            while (candidateI < othersId.length - 1) {
+                candidateI++;
                 if (othersId.includes(candidateI.toString())) return candidateI;
             }
             return -1;
@@ -244,8 +276,8 @@ class MarbleBot {
 
     applyRules(rules) {
         this.hideRule();
-        // this.delta_position = 0;
-        // this.delta_angle = 0;
+        this.delta_position = 0;
+        this.delta_angle = 0;
 
         const othersId = Object.keys(this.swarmMap);//.sort();
         for (const rule of rules) {
@@ -279,6 +311,9 @@ class MarbleBot {
             if (rule.measurement_type == "ir" && !rule.isWithinAngleRange(signedAngleDiff(ir_angle + ir_ref_theta, this.theta))) continue;
             if (rule.measurement_type == "uwb" && !rule.isWithinAngleRange(signedAngleDiff(uwb_angle + uwb_ref_theta, this.theta))) continue;
 
+            if (rule.measurement_type == "ir" && !this.newIrMeasurement) continue;
+            if (rule.measurement_type == "uwb" && !this.newUwbMeasurement) continue;
+
             const other_is_moving = otherMarbleBot["is_moving"];
 
             const params = {
@@ -299,8 +334,12 @@ class MarbleBot {
             };
 
             const { delta_position, delta_angle, applies } = rule.apply({ ...params });
+            // if(this.i == 6) console.log(rule.isWithinDistanceRange(uwb_distance));
             if (!applies) continue;
             this.currentRule = rule;
+
+            this.newIrMeasurement = false;
+            this.newUwbMeasurement = false;
 
             this.delta_position = delta_position;
             this.delta_angle = delta_angle; //mod(delta_angle + Math.PI, 2 * Math.PI) - Math.PI;
@@ -338,6 +377,7 @@ class MarbleBot {
             text("Theta: " + this.theta, 10, 50);
             text("IsMoving: " + this.is_moving, 10, 70);
             text("ID Offset: " + this.id_offset, 10, 80);
+            text("Radial Error: " + this.radialError, 10, 90);
             if(this.targetId != undefined) text("Target: " + this.targetId, 10, 60);
             rotate(-this.theta);
 
@@ -381,7 +421,7 @@ class MarbleBot {
         if (this.targeted_delta_angle == undefined) this.targeted_delta_angle = this.delta_angle;
         if (this.targeted_delta_position == undefined) this.targeted_delta_position = this.delta_position;
 
-        if (this.i == 0) console.log(this.targeted_delta_angle, this.targeted_delta_position, this.delta_angle, this.delta_position);
+        // if (this.i == 0) console.log(this.targeted_delta_angle, this.targeted_delta_position, this.delta_angle, this.delta_position);
         // if (Math.abs(this.targeted_delta_angle) < Math.PI / 2 || (this.currentRule && !this.currentRule.is_moving)) {
 
         if (Math.abs(this.targeted_delta_angle) > thetaMin) {
@@ -452,8 +492,8 @@ export let createRandomSwarm = (n) => {
     for (let i = 0; i < n; i++) {
         // if (i == 3) continue;
 
-        let x = i == 0 ? -0.40 : Math.random() * ARENA_SIZE - ARENA_SIZE/2;
-        let y = i == 0 ? 0 : Math.random() * ARENA_SIZE - ARENA_SIZE/2;
+        let x = i == 0 ? -0.5 : Math.random() * ARENA_SIZE - ARENA_SIZE/2;
+        let y = i == 0 ? -0.2 : Math.random() * ARENA_SIZE - ARENA_SIZE/2;
         let theta = i == 0 ? 0.5: Math.random() * 2 * Math.PI - Math.PI;
 
         // let r = Math.floor(COL_MIN + (COL_MAX - COL_MIN) * Math.random());

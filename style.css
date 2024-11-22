@@ -173,6 +173,33 @@ button {
     background-color: var(--foreground-color);
 }
 
+.visualization-controls {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+}
+
+.visualization-controls h4 {
+    margin: 0 0 10px 0;
+}
+
+.toggle-container {
+    margin: 8px 0;
+}
+
+.toggle-container label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
+.toggle-container input[type="checkbox"] {
+    margin-right: 8px;
+    cursor: pointer;
+}
+
 /* Simulation selection */
 #simulation-selection {
     display: flex;

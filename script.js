@@ -7,8 +7,17 @@ import {
     setUWBRadialPrecision,
     setIRAngularPrecision,
     setIRRadialPrecision,
-    ZOOM
+    ZOOM,
+    setNoiseScale,
+    setNoiseSpeed
 } from './src/constants.js';
+import {
+    toggleUWBAngularError,
+    toggleUWBRadialError,
+    toggleIRAngularError,
+    toggleIRRadialError,
+    drawErrorMap
+} from './src/noise.js';
 
 let { scene, camera, renderer, container, canvas } = createScene();
 
@@ -23,6 +32,7 @@ swarm.forEach(marbleBot => {
 let regenButton = document.getElementById('regen-button');
 regenButton.addEventListener('click', () => {
     wrapper.drawings = {};
+    wrapper.drawings.errorMap = drawErrorMap;
     swarm.forEach(marbleBot => {
         scene.remove(marbleBot.mesh);
     });
@@ -50,7 +60,7 @@ setInterval(() => {
     counter++;
 
     if (counter % 1 === 0) swarm.forEach(marbleBot => marbleBot.senseSwarmUWB(swarm));
-    if (counter %  1 === 0) swarm.forEach(marbleBot => marbleBot.senseSwarmIR(swarm));
+    if (counter % 1 === 0) swarm.forEach(marbleBot => marbleBot.senseSwarmIR(swarm));
 
     swarm.forEach(marbleBot => marbleBot.applyRules(rules));
     // swarm[1].applyRules(rules);
@@ -185,6 +195,40 @@ function initializePrecisionControls() {
         });
     });
 }
+
+// Error visualization controls
+const noiseScaleSlider = document.getElementById('noise-scale');
+const noiseScaleValue = document.getElementById('noise-scale-value');
+const noiseSpeedSlider = document.getElementById('noise-speed');
+const noiseSpeedValue = document.getElementById('noise-speed-value');
+const showIRRadialToggle = document.getElementById('show-ir-radial');
+const showIRAngularToggle = document.getElementById('show-ir-angular');
+const showUWBRadialToggle = document.getElementById('show-uwb-radial');
+const showUWBAngularToggle = document.getElementById('show-uwb-angular');
+
+// Update noise scale value display
+noiseScaleSlider.addEventListener('input', () => {
+    const value = noiseScaleSlider.value;
+    noiseScaleValue.textContent = value;
+    setNoiseScale(parseFloat(value));
+});
+
+// Update noise speed value display
+noiseSpeedSlider.addEventListener('input', () => {
+    const value = noiseSpeedSlider.value;
+    noiseSpeedValue.textContent = value;
+    setNoiseSpeed(parseFloat(value));
+});
+
+// Initialize noise control value displays
+noiseScaleValue.textContent = noiseScaleSlider.value;
+noiseSpeedValue.textContent = noiseSpeedSlider.value;
+
+// Error visualization toggles
+showIRRadialToggle.addEventListener('change', () => toggleIRRadialError());
+showIRAngularToggle.addEventListener('change', () => toggleIRAngularError());
+showUWBRadialToggle.addEventListener('change', () => toggleUWBRadialError());
+showUWBAngularToggle.addEventListener('change', () => toggleUWBAngularError());
 
 document.addEventListener('DOMContentLoaded', () => {
     initializePrecisionControls();
