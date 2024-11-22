@@ -222,7 +222,7 @@ irShapeCircle.apply = ({ id_offset, theta, ir_distance, ir_angle, ir_ref_theta, 
     const r1 = ir_distance;
     const phi1 = signedAngleDiff(ir_angle + ir_ref_theta, theta);
 
-    const r2 = 0.2;
+    const r2 = segmentSize;
     const phi2 = polygon_angles + ir_other_theta - ir_ref_theta;
 
     let { r, phi } = addPolarVectors(r1, phi1, r2, phi2);
@@ -257,7 +257,7 @@ uwbShapeCircle.apply = ({ id_offset, theta, uwb_distance, uwb_angle, uwb_ref_the
     const r1 = uwb_distance;
     const phi1 = signedAngleDiff(uwb_angle + uwb_ref_theta, theta);
 
-    const r2 = 0.2;
+    const r2 = segmentSize;
     const phi2 = polygon_angles + uwb_other_theta - uwb_ref_theta;
 
     let { r, phi } = addPolarVectors(r1, phi1, r2, phi2);
@@ -296,7 +296,7 @@ uwbShapePolygon.apply = ({ id_offset, theta, uwb_distance, uwb_angle, uwb_ref_th
     const r1 = uwb_distance;
     const phi1 = signedAngleDiff(uwb_angle + uwb_ref_theta, theta);
 
-    const r2 = 0.2;  // Step size for positioning
+    const r2 = segmentSize;  // Step size for positioning
     const phi2 = Math.PI / 2 + uwb_other_theta - uwb_ref_theta;
 
     let { r, phi } = addPolarVectors(r1, phi1, r2, phi2);
@@ -329,7 +329,7 @@ irShapePolygon.apply = ({ id_offset, theta, ir_distance, ir_angle, ir_ref_theta,
     const r1 = ir_distance;
     const phi1 = signedAngleDiff(ir_angle + ir_ref_theta, theta);
 
-    const r2 = 0.2;  // Step size for positioning
+    const r2 = segmentSize;  // Step size for positioning
     const phi2 = Math.PI / 2 + ir_other_theta - ir_ref_theta;
 
     let { r, phi } = addPolarVectors(r1, phi1, r2, phi2);
@@ -339,6 +339,44 @@ irShapePolygon.apply = ({ id_offset, theta, ir_distance, ir_angle, ir_ref_theta,
         ({ r, phi } = addPolarVectors(r, phi, r2, Math.PI / 2 - (a) * Math.round(i / Math.floor(swarm_length / polygonSides)) + ir_other_theta - ir_ref_theta));
     }
 
+    phi = mod(phi + Math.PI, 2 * Math.PI) - Math.PI;
+
+    return { delta_position: r*0.9, delta_angle: phi,  applies: r > minRadiusThreshold };
+}
+
+
+export const uwbShapeSquare = new Rule(
+    'uwbShapeSquare',
+    'uwb',
+    '0',
+    'true',
+    {start: -2 * Math.PI, end: 2 * Math.PI},
+    {start: UWB_MIN_SENSING_RADIUS, end: UWB_MAX_SENSING_RADIUS},
+    true
+)
+
+uwbShapeSquare.apply = ({ id_offset, theta, uwb_distance, uwb_angle, uwb_ref_theta, uwb_other_theta, swarm_length }) => {
+    const a = Math.PI / 2;
+
+    const r1 = uwb_distance;
+    const phi1 = signedAngleDiff(uwb_angle + uwb_ref_theta, theta);
+
+    const r2 = segmentSize;  // Step size for positioning
+    const phi2 = Math.PI/4 + uwb_other_theta - uwb_ref_theta;
+
+    const sideCount = Math.floor( swarm_length / 4);
+
+    let { r, phi } = addPolarVectors(r1, phi1, r2, phi2);
+
+    // Position robots along the polygon vertices
+    for (let i = 1; i < Math.min(id_offset, 4 * sideCount - 1); i++) {
+        let rem = Math.floor(i / sideCount) % 2 == 0 ? 0 : 1;
+        let turn = (i + 1) % sideCount == 0 ? (Math.floor(i + 1) / 2) % sideCount == 0 ? 1 : -1 : 0;
+        ({ r, phi } = addPolarVectors(
+            r, phi,
+            r2, Math.PI/4 + rem * Math.PI + turn * Math.PI/2 + uwb_other_theta - uwb_ref_theta
+        ));
+    }
     phi = mod(phi + Math.PI, 2 * Math.PI) - Math.PI;
 
     return { delta_position: r*0.9, delta_angle: phi,  applies: r > minRadiusThreshold };
@@ -399,6 +437,7 @@ uwbFaceCircleCenter.apply = ({ theta, uwb_other_theta, swarm_length }) => {
 export let formationType = 'circle';
 export let polygonSides = 4;
 export let minRadiusThreshold = 0.05;
+export let segmentSize = 0.2;
 
 export const setFormationType = (type) => {
     formationType = type;
@@ -412,16 +451,25 @@ export const setMinRadiusThreshold = (threshold) => {
     minRadiusThreshold = threshold;
 };
 
+export const setSegmentSize = (size) => {
+    segmentSize = size;
+};
+
 export const getActiveRules = () => {
     const baseRules = [
         // faceNorth,
         // irMoveAwayFromAnchor,
     ];
 
-    if (formationType === 'circle') {
-        return [...baseRules, irShapeCircle, uwbShapeCircle, uwbFaceCircleCenter];
-    } else {
-        return [...baseRules, irShapePolygon, uwbShapePolygon, uwbFaceCircleCenter];
+    switch (formationType) {
+        case 'circle':
+            return [...baseRules, irShapeCircle, uwbShapeCircle, uwbFaceCircleCenter];
+        case 'polygon':
+            return [...baseRules, irShapePolygon, uwbShapePolygon, uwbFaceCircleCenter];
+        case 'square':
+            return [...baseRules, uwbShapeSquare];
+        default:
+            return baseRules;
     }
 };
 

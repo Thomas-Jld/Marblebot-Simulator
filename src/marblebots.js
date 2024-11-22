@@ -133,7 +133,7 @@ class MarbleBot {
         this.useHelper = false;
     }
 
-    senseSwarmIR(swarm) {
+    senseSwarmIR(swarm, frameCount) {
         swarm.forEach((marbleBot, i) => {
             if (marbleBot.name === this.name) return;
 
@@ -189,7 +189,7 @@ class MarbleBot {
         this.newIrMeasurement = true;
     }
 
-    senseSwarmUWB(swarm) {
+    senseSwarmUWB(swarm, frameCount) {
         swarm.forEach((marbleBot, i) => {
             if (marbleBot.name === this.name) return;
 
@@ -431,6 +431,7 @@ class MarbleBot {
         } else if (Math.abs(this.targeted_delta_position) > thetaMin) {
             let position_step = unsignedMax(unsignedMin(this.targeted_delta_position, MAX_SPEED_M_S * dt), MIN_SPEED_M_S * dt);
             this.targeted_delta_position -= position_step;
+            if(this.i == 0) console.log(position_step, this.targeted_delta_position);
             this.x += position_step * Math.cos(this.theta);
             this.y += position_step * Math.sin(this.theta);
         } else {

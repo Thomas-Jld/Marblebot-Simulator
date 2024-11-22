@@ -29,53 +29,61 @@
                 <h3>Sensor Error Controls</h3>
                 <div class="error-controls">
                     <div class="slider-container">
-                        <label for="uwb-angular">UWB Angular Error:</label>
-                        <input type="range" id="uwb-angular" min="0.017" max="0.51" step="0.017" value="0.17">
-                        <span id="uwb-angular-value"></span>
-                    </div>
-                    <div class="slider-container">
-                        <label for="uwb-radial">UWB Radial Error:</label>
+                        <label for="uwb-radial">
+                            UWB Radial Error:
+                            <div class="toggle-container">
+                                <label>
+                                    Show
+                                    <input type="checkbox" id="show-uwb-radial" checked>
+                                </label>
+                            </div>
+                        </label>
                         <input type="range" id="uwb-radial" min="0.01" max="0.3" step="0.01" value="0.1">
                         <span id="uwb-radial-value"></span>
                     </div>
                     <div class="slider-container">
-                        <label for="ir-angular">IR Angular Error:</label>
-                        <input type="range" id="ir-angular" min="0.017" max="0.57" step="0.017" value="0.057">
-                        <span id="ir-angular-value"></span>
+                        <label for="uwb-angular">
+                            UWB Angular Error:
+                            <div class="toggle-container">
+                                <label>
+                                    Show
+                                    <input type="checkbox" id="show-uwb-angular">
+                                </label>
+                            </div>
+                        </label>
+                        <input type="range" id="uwb-angular" min="0.017" max="0.51" step="0.017" value="0.17">
+                        <span id="uwb-angular-value"></span>
                     </div>
                     <div class="slider-container">
-                        <label for="ir-radial">IR Radial Error:</label>
+                        <label for="ir-radial">
+                            IR Radial Error:
+                            <div class="toggle-container">
+                                <label>
+                                    Show
+                                    <input type="checkbox" id="show-ir-radial">
+                                </label>
+                            </div>
+                        </label>
                         <input type="range" id="ir-radial" min="0.01" max="0.3" step="0.01" value="0.03">
                         <span id="ir-radial-value"></span>
+                    </div>
+                    <div class="slider-container">
+                        <label for="ir-angular">
+                            IR Angular Error:
+                            <div class="toggle-container">
+                                <label>
+                                    Show
+                                    <input type="checkbox" id="show-ir-angular">
+                                </label>
+                            </div>
+                        </label>
+                        <input type="range" id="ir-angular" min="0.017" max="0.57" step="0.017" value="0.057">
+                        <span id="ir-angular-value"></span>
                     </div>
 
                     <!-- Error Visualization Controls -->
                     <div class="visualization-controls">
                         <h4>Error Visualization</h4>
-                        <div class="toggle-container">
-                            <label>
-                                <input type="checkbox" id="show-uwb-angular">
-                                Show UWB Angular Error Map
-                            </label>
-                        </div>
-                        <div class="toggle-container">
-                            <label>
-                                <input type="checkbox" id="show-uwb-radial" checked>
-                                Show UWB Radial Error Map
-                            </label>
-                        </div>
-                        <div class="toggle-container">
-                            <label>
-                                <input type="checkbox" id="show-ir-angular">
-                                Show IR Angular Error Map
-                            </label>
-                        </div>
-                        <div class="toggle-container">
-                            <label>
-                                <input type="checkbox" id="show-ir-radial">
-                                Show IR Radial Error Map
-                            </label>
-                        </div>
                         <div class="slider-container">
                             <label for="noise-scale">Noise Scale:</label>
                             <input type="range" id="noise-scale" min="0.001" max="0.02" step="0.001" value="0.004">
@@ -96,7 +104,13 @@
                         <select id="formation-select">
                             <option value="circle">Circle Formation</option>
                             <option value="polygon">Polygon Formation</option>
+                            <option value="square">Filled square Formation</option>
                         </select>
+                    </div>
+                    <div class="slider-container">
+                        <label for="segment-size">Segment Size:</label>
+                        <input type="range" id="segment-size" min="0.05" max="0.5" step="0.01" value="0.2">
+                        <span id="segment-size-value"></span>
                     </div>
                     <div class="slider-container">
                         <label for="min-radius">Min Radius Threshold:</label>

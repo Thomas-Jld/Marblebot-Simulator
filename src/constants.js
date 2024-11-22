@@ -10,7 +10,7 @@ export const ROBOT_RADIUS = 0.03 / 2;
  * UWB (Ultra-Wideband) Sensor Configuration
  * Used for long-range detection and formation control
  */
-export const UWB_MIN_SENSING_RADIUS = 0.3;    // Minimum detection range (m)
+export const UWB_MIN_SENSING_RADIUS = 0.03;    // Minimum detection range (m)
 export const UWB_MAX_SENSING_RADIUS = 20.0;   // Maximum detection range (m)
 export const UWB_PRECISION = 0.1;             // Base precision value
 

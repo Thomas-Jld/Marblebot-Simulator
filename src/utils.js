@@ -28,9 +28,9 @@ export function unsignedMin(a, b) {
  * @returns {number} The "unsigned maximum" between the two numbers
  */
 export function unsignedMax(a, b) {
-    if (a < 0 && b < 0) if (Math.abs(a) > Math.abs(b)) return a; else return b;
-    if (a < 0 && b >= 0) return b;
-    if (a >= 0 && b < 0) return a;
+    if (a < 0 && b < 0) return Math.min(a, b);
+    if (a < 0 && b >= 0) if (Math.abs(a) < b) return -1*b; else return a;
+    if (a >= 0 && b < 0) if (a < Math.abs(b)) return b; else return a;
     return Math.max(a, b);
 }
 
