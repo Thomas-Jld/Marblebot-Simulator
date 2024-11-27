@@ -28,7 +28,7 @@ function windowResized() {
 
 // p5.js draw function
 function draw() {
-    background(255);
+    background("#d9edf5");
 
     // Draw existing elements
     for (const drawing in wrapper.drawings) {
