@@ -66,6 +66,10 @@ class Controls {
             segmentSizeValue.textContent = value;
             setSegmentSize(value);
         });
+
+        polygonSidesValue.textContent = polygonSidesInput.value;
+        minRadiusValue.textContent = minRadiusInput.value;
+        segmentSizeValue.textContent = segmentSizeInput.value;
     }
 
     initializePrecisionControls() {

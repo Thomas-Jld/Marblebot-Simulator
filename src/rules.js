@@ -364,12 +364,12 @@ uwbShapeSquare.apply = ({ id_offset, theta, uwb_distance, uwb_angle, uwb_ref_the
     const r2 = segmentSize;  // Step size for positioning
     const phi2 = Math.PI/4 + uwb_other_theta - uwb_ref_theta;
 
-    const sideCount = Math.floor( swarm_length / 4);
+    const sideCount = Math.floor( Math.sqrt(swarm_length));
 
     let { r, phi } = addPolarVectors(r1, phi1, r2, phi2);
 
     // Position robots along the polygon vertices
-    for (let i = 1; i < Math.min(id_offset, 4 * sideCount - 1); i++) {
+    for (let i = 1; i < Math.min(id_offset, sideCount * sideCount - 1); i++) {
         let rem = Math.floor(i / sideCount) % 2 == 0 ? 0 : 1;
         let turn = (i + 1) % sideCount == 0 ? (Math.floor(i + 1) / 2) % sideCount == 0 ? 1 : -1 : 0;
         ({ r, phi } = addPolarVectors(

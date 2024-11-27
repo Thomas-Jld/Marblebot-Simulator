@@ -431,7 +431,7 @@ class MarbleBot {
         } else if (Math.abs(this.targeted_delta_position) > thetaMin) {
             let position_step = unsignedMax(unsignedMin(this.targeted_delta_position, MAX_SPEED_M_S * dt), MIN_SPEED_M_S * dt);
             this.targeted_delta_position -= position_step;
-            if(this.i == 0) console.log(position_step, this.targeted_delta_position);
+            // if(this.i == 0) console.log(position_step, this.targeted_delta_position);
             this.x += position_step * Math.cos(this.theta);
             this.y += position_step * Math.sin(this.theta);
         } else {
@@ -439,28 +439,6 @@ class MarbleBot {
             this.targeted_delta_position = undefined;
             this.is_moving = false;
         }
-        // } else {
-        //     let alt_delta_angle = signedAngleDiff(Math.PI, this.delta_angle);
-        //     if (Math.abs(alt_delta_angle) > thetaMin) {
-        //         let angle_step = unsignedMin(alt_delta_angle, MAX_ROT_SPEED_RAD_S * dt);
-        //         this.theta -= angle_step;
-        //         this.is_moving = true;
-        //     } else if (Math.abs(this.delta_position) > thetaMin) {
-        //         let position_step = Math.max(Math.min(this.delta_position, MAX_SPEED_M_S * dt), MIN_SPEED_M_S * dt);
-        //         this.x -= position_step * Math.cos(this.theta);
-        //         this.y -= position_step * Math.sin(this.theta);
-        //         this.is_moving = true;
-        //     }
-        // }
-        //     if (unsignedAngleDiff(Math.PI, this.delta_angle) > 0.01) {
-        //         let angle_step = unsignedMin(unsignedMin(signedAngleDiff(-Math.PI, this.delta_angle), signedAngleDiff(Math.PI, this.delta_angle)), MAX_ROT_SPEED_RAD_S * dt);
-        //         this.theta -= angle_step;
-        //     } else if (Math.abs(this.delta_position) > 0.03) {
-        //         let position_step = Math.min(this.delta_position, MAX_SPEED_M_S * dt);
-        //         this.x -= position_step * Math.cos(this.theta);
-        //         this.y -= position_step * Math.sin(this.theta);
-        //     }
-        // }
 
         this.mesh.position.set(this.x, this.y, 0.05);
         this.mesh.rotation.z = this.theta;

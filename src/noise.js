@@ -89,7 +89,7 @@ export function drawErrorMap() {
                 // Map error from -1,1 to 0,255
                 const col = map(error, -1, 1, -255, 255);
 
-                fill(255 - Math.max(0, col), 255 + Math.min(0, col), 255, 128);
+                fill(255 - Math.max(0, col), 255 + Math.min(0, col), 255, 100);
                 rect(x * squareSize, y * squareSize, squareSize, squareSize);
             }
         }
