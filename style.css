@@ -1,8 +1,8 @@
 :root {
     /* Colors */
     --background-color: #d9edf5;
-    --secondary-background-color: #c3dfe9;
-    --foreground-color: #333;
+    --secondary-background-color: #d9edf5;
+    --foreground-color: #F96E2A;
     --text-color: #666;
     --border-color: #ccc;
     --white: #fff;
@@ -20,10 +20,10 @@
     --small-font-size: 0.875rem;
     --smaller-font-size: 0.75rem;
     --sidebar-width: 20rem;
-    --control-panel-width: 26rem;
+    --control-panel-width: 25rem;
 
     /* Effects */
-    --box-shadow: 0 0 0.25rem rgba(0, 0, 0, 0.25);
+    --box-shadow: 0 0 0.25rem #c3dfe9;
     --box-shadow-lg: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
     --border-radius-sm: 0.5rem;
 }
@@ -55,6 +55,11 @@ button {
     box-shadow: var(--box-shadow-lg);
     border: 0;
     border-radius: var(--border-radius-sm);
+    color: var(--foreground-color);
+}
+
+select {
+    color: var(--foreground-color);
 }
 
 #p5Canvas {
@@ -65,7 +70,7 @@ button {
 #simulation-container {
     width: calc(100vw - var(--control-panel-width));
     height: calc(100vh - var(--spacing-xl) * 2);
-    margin: var(--spacing-xl);
+    margin: var(--spacing-xl) 0 var(--spacing-xl) var(--spacing-xl);
 }
 
 #parameters {
@@ -74,11 +79,11 @@ button {
     top: 0;
     right: 0;
     width: var(--sidebar-width);
-    height: calc(100vh - var(--spacing-xl));
-    padding: var(--spacing-md);
+    height: calc(100vh - 2*var(--spacing-xl));
+    padding: var(--spacing-xl) var(--spacing-md);
     flex-direction: column;
     background-color: var(--secondary-background-color);
-    box-shadow: var(--box-shadow);
+    /* box-shadow: var(--box-shadow); */
     overflow-y: scroll;
 }
 
