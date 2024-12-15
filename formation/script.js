@@ -22,3 +22,4 @@ setInterval(() => swarmManager.update(), 33);
 
 // Start animation loop
 sceneManager.animate(() => {});
+;

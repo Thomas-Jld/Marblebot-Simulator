@@ -26,6 +26,10 @@ function windowResized() {
     window.wrapper.height = container.clientHeight;
 }
 
+setTimeout(() => {
+    windowResized();
+}, 500);
+
 // p5.js draw function
 function draw() {
     background("#d9edf5");

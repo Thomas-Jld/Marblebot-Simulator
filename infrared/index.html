@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infrared Simulation</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/">Home</a>
+        <a href="/formation/index.html">Formation</a>
+        <a href="/infrared/index.html" class="active">Infrared</a>
+    </nav>
+    <div id="simulation-container">
+        <canvas id="p5Canvas" class="simulation-canvas"></canvas>
+    </div>
+    <div id="parameters">
+        <div class="control-section">
+            <div class="section-header">
+                <h3>Parameters</h3>
+                <button class="toggle-section collapsed" aria-label="Toggle Formation Controls">
+                    <span class="arrow">▼</span>
+                </button>
+            </div>
+            <div class="section-content collapsed">
+                <div class="formation-controls">
+                    <div class="slider-container">
+                        <label for="ledCount">LED Count:
+                            <div class="toggle-container">
+                                <label>
+                                    Only show one
+                                    <input type="checkbox" id="show-one">
+                                </label>
+                            </div>
+                        </label>
+                        <input type="range" id="ledCount" min="1" max="16" step="1" value="8">
+                        <span id="ledCountValue">8</span>
+                    </div>
+                    <div class="slider-container">
+                        <label for="ledSpacing">LED Spacing:</label>
+                        <input type="range" id="ledSpacing" min="5" max="20" step="0.5" value="9.5">
+                        <span id="ledSpacingValue">9.5</span>
+                    </div>
+                    <div class="slider-container">
+                        <label for="coneAngle">
+                            Cone Half Angle (degrees):
+                            <div class="toggle-container">
+                                <label>
+                                    Cone
+                                    <input type="checkbox" id="show-cone">
+                                </label>
+                            </div>
+                        </label>
+                        <input type="range" id="coneAngle" min="30" max="60" value="50">
+                        <span id="coneAngleValue">50</span>
+                    </div>
+                    <div class="slider-container">
+                        <label for="scale">Scale:</label>
+                        <input type="range" id="scale" min="1" max="50" step="0.1" value="3">
+                        <span id="scaleValue">3</span>
+                    </div>
+                    <div class="slider-container">
+                        <label for="intensity">Intensity:
+                            <div class="toggle-container">
+                                <label>
+                                    Grayscale
+                                    <input type="checkbox" id="grayscale" checked>
+                                </label>
+                            </div>
+                        </label>
+                        <input type="range" id="intensity" min="1" max="100" step="1" value="50">
+                        <span id="intensityValue">50</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-section">
+            <div class="section-header">
+                <h3>Emission Curve</h3>
+                <button class="toggle-section collapsed" aria-label="Toggle Emission Curve">
+                    <span class="arrow">▼</span>
+                </button>
+            </div>
+            <div class="section-content collapsed">
+                <div class="emission-curve-controls">
+                    <canvas id="curveEditor" width="200" height="150"></canvas>
+                    <button id="resetCurve">Reset Curve</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-section">
+            <div class="section-header">
+                <h3>Reception Curve</h3>
+                <button class="toggle-section collapsed" aria-label="Toggle Reception Curve">
+                    <span class="arrow">▼</span>
+                </button>
+            </div>
+            <div class="section-content collapsed">
+                <div class="reception-curve-controls">
+                    <canvas id="receptionCurveEditor" width="200" height="150"></canvas>
+                    <button id="resetReceptionCurve">Reset Curve</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-section">
+            <div class="section-header">
+                <h3>Simulation</h3>
+                <button class="toggle-section collapsed" aria-label="Toggle Simulation">
+                    <span class="arrow">▼</span>
+                </button>
+            </div>
+            <div class="section-content collapsed">
+                <div class="simulation-controls">
+                    <div class="button-group">
+                        <button id="startStopSimulation" class="primary-button">Start Simulation</button>
+                        <button id="resetSimulation">Reset Simulation</button>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="receptorChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="sketch.js"></script>
+</body>
+</html>
